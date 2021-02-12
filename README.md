@@ -1,0 +1,2 @@
+# slotMachineHiyo_DiscordBot
+DiscordBot SlotMachine
