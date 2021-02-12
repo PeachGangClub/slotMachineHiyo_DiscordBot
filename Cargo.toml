@@ -11,12 +11,9 @@ rand="0.6.5"
 [dependencies.serenity]
 default-features = false
 features = [
-    "builder",
     "client",
     "gateway",
-    "http",
     "model",
-    "utils",
     "rustls_backend",
 ]
 version = "0.10"
