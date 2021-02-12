@@ -5,6 +5,18 @@ authors = ["kareinonitsuke"]
 edition = "2018"
 
 [dependencies]
-serenity = {version = "0.10.2"}
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 rand="0.6.5"
+
+[dependencies.serenity]
+default-features = false
+features = [
+    "builder",
+    "client",
+    "gateway",
+    "http",
+    "model",
+    "utils",
+    "rustls_backend",
+]
+version = "0.10"
