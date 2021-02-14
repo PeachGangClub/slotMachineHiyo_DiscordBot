@@ -56,7 +56,7 @@ async fn gen_slot_str() -> String {
         }
     }
 
-    let all_pictures = pictures[0].to_string()+" "+pictures[1]+" "+pictures[2]+"\n";
+    let all_pictures = pictures[0].to_string()+pictures[1]+pictures[2]+"\n";
     return all_pictures;
 }
 
