@@ -14,23 +14,25 @@ struct Handler;
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
         //暫定対応//
-        let mut command_num = 0;
+        println!("channnelId:{}", msg.channel_id);
+        if(msg.channel_id==809365851802173470){  
+            let mut command_num = 0;
+            let command_str_0to7 = msg.content.chars().skip(0).take(8).collect::<String>();
+            let command_str_8 = msg.content.chars().skip(8).take(1).collect::<String>();
+            let command_str_9 = msg.content.chars().skip(9).take(1).collect::<String>();
+            //println!("{}, {}, {}", command_str_0to7,command_str_8,command_str_9);
+            if command_str_0to7 == "!ひよこスロット" {
+                command_num = 1;
+                if command_str_8 == "*"{
+                    command_num = match command_str_9.parse::<u8>(){
+                        Ok(_)=> command_str_9.parse::<u8>().unwrap(),
+                        Err(_)=> 1, 
+                    };
+                }
 
-        let command_str_0to7 = msg.content.chars().skip(0).take(8).collect::<String>();
-        let command_str_8 = msg.content.chars().skip(8).take(1).collect::<String>();
-        let command_str_9 = msg.content.chars().skip(9).take(1).collect::<String>();
-        //println!("{}, {}, {}", command_str_0to7,command_str_8,command_str_9);
-        if command_str_0to7 == "!ひよこスロット" {
-            command_num = 1;
-            if command_str_8 == "*"{
-                command_num = match command_str_9.parse::<u8>(){
-                    Ok(_)=> command_str_9.parse::<u8>().unwrap(),
-                    Err(_)=> 1, 
-                };
+                println!("commandnum:{}", command_num);
+                hiyoko_slot(&ctx,&msg,command_num).await;
             }
-
-            println!("commandnum:{}", command_num);
-            hiyoko_slot(&ctx,&msg,command_num).await;
         }
         //暫定対応//
     }
@@ -84,6 +86,7 @@ async fn hiyoko_slot(ctx: &Context, msg: &Message,command_num: u8){
     if let Err(why) = msg.channel_id.say(&ctx.http, &response).await {
         println!("Error sending message: {:?}", why);
     }
+   
 }
 
 #[tokio::main]
