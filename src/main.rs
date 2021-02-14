@@ -25,18 +25,14 @@ impl EventHandler for Handler {
             if command_str_8 == "*"{
                 command_num = match command_str_9.parse::<u8>(){
                     Ok(_)=> command_str_9.parse::<u8>().unwrap(),
-                    Err(_)=> 0, 
+                    Err(_)=> 1, 
                 };
             }
 
             println!("commandnum:{}", command_num);
-
-            for n in 0..command_num{
-                hiyoko_slot(&ctx,&msg).await;
-            }
+            hiyoko_slot(&ctx,&msg,command_num).await;
         }
         //暫定対応//
-        
     }
 
     async fn ready(&self, _: Context, ready: Ready) {
@@ -44,19 +40,11 @@ impl EventHandler for Handler {
     }
 }
 
-async fn hiyoko_slot(ctx: &Context, msg: &Message){
+async fn gen_slot_str() -> String {
     let momo = "<:momo:747707481282838588>";
     let momogang = "<:momogang:747708446878728233>";
     let picture_num = 2;
     let slot_num = 3;
-    println!("Shard {}", ctx.shard_id);
-    let channel = match msg.channel_id.to_channel(&ctx).await {
-        Ok(channel) => channel,
-        Err(why) => {
-            println!("Error getting channel: {:?}", why);
-            return;
-        },
-    };
 
     let mut pictures = ["","",""];
     for a_picture in pictures.iter_mut() {
@@ -67,15 +55,31 @@ async fn hiyoko_slot(ctx: &Context, msg: &Message){
             _=> *a_picture = "error"
         }
     }
+
+    let all_pictures = pictures[0].to_string()+" "+pictures[1]+" "+pictures[2]+"\n";
+    return all_pictures;
+}
+
+async fn hiyoko_slot(ctx: &Context, msg: &Message,command_num: u8){
+    println!("Shard {}", ctx.shard_id);
+    let channel = match msg.channel_id.to_channel(&ctx).await {
+        Ok(channel) => channel,
+        Err(why) => {
+            println!("Error getting channel: {:?}", why);
+            return;
+        },
+    };
+
+    let mut result = "".to_string();
+    for n in 0..command_num{
+        let all_pictures = gen_slot_str().await;
+        result = result+&all_pictures;
+    }
     
     let response = MessageBuilder::new()
     //.mention(&msg.author)
     //.push(" ")
-    .push(pictures[0].to_string())
-    .push(" ")
-    .push(pictures[1].to_string())
-    .push(" ")
-    .push(pictures[2].to_string())
+    .push(result)
     .build();
     if let Err(why) = msg.channel_id.say(&ctx.http, &response).await {
         println!("Error sending message: {:?}", why);
