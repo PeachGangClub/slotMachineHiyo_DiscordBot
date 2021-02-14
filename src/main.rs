@@ -15,47 +15,34 @@ impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
         //暫定対応//
         let mut command_num = 0;
-        if msg.content == "!ひよこスロット" {
+
+        let command_str_0to7 = msg.content.chars().skip(0).take(8).collect::<String>();
+        let command_str_8 = msg.content.chars().skip(8).take(1).collect::<String>();
+        let command_str_9 = msg.content.chars().skip(9).take(1).collect::<String>();
+        //println!("{}, {}, {}", command_str_0to7,command_str_8,command_str_9);
+        if command_str_0to7 == "!ひよこスロット" {
             command_num = 1;
-        }
-        if msg.content == "!ひよこスロット*3" {
-            command_num = 3;
-        }
-        
-        for n in 0..command_num{
-            hiyoko_slot(&ctx,&msg).await;
+            if command_str_8 == "*"{
+                command_num = match command_str_9.parse::<u8>(){
+                    Ok(_)=> command_str_9.parse::<u8>().unwrap(),
+                    Err(_)=> 0, 
+                };
+            }
+
+            println!("commandnum:{}", command_num);
+
+            for n in 0..command_num{
+                hiyoko_slot(&ctx,&msg).await;
+            }
         }
         //暫定対応//
-
-        // if msg.content == "!ひよこスロット*3" {
-        //     let num_str = get_command_num();
-        //     let num:i32 = num_str.parse().unwrap();
-        //     hiyoko_slot(&ctx,&msg).await;
-        //     hiyoko_slot(&ctx,&msg).await;
-        //     hiyoko_slot(&ctx,&msg).await;
-        // }
-
-
+        
     }
 
     async fn ready(&self, _: Context, ready: Ready) {
         println!("{} is connected!", ready.user.name);
     }
 }
-
-// async fn get_command_num(command_str)=> &str{
-//     let mut str = "".to_string();
-//     let flg = 0;
-//     for (i, c) in command_str.chars().enumerate() {
-//         if c=="*" {
-//             flg = 1;
-//         }
-//         if flg ==1{
-//             str.push(c);
-//         }
-//     }
-//     return str; 
-// }
 
 async fn hiyoko_slot(ctx: &Context, msg: &Message){
     let momo = "<:momo:747707481282838588>";
