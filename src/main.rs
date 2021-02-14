@@ -14,7 +14,7 @@ struct Handler;
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
         //暫定対応//
-        if(msg.channel_id==1){
+        if(msg.channel_id!=1){
             let mut command_num = 0;
 
             let command_str_0to7 = msg.content.chars().skip(0).take(8).collect::<String>();
