@@ -9,37 +9,68 @@ use serenity::{
 };
 
 struct Handler;
+enum CommandTypeId{
+    UnknownCommand,
+    HiyokoSlot,
+}
 
 #[async_trait]
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
-        //暫定対応//
-        println!("channnelId:{}", msg.channel_id);
-        if(msg.channel_id==809365851802173470){  
-            let mut command_num = 0;
-            let command_str_0to7 = msg.content.chars().skip(0).take(8).collect::<String>();
-            let command_str_8 = msg.content.chars().skip(8).take(1).collect::<String>();
-            let command_str_9 = msg.content.chars().skip(9).take(1).collect::<String>();
-            //println!("{}, {}, {}", command_str_0to7,command_str_8,command_str_9);
-            if command_str_0to7 == "!ひよこスロット" {
-                command_num = 1;
-                if command_str_8 == "*"{
-                    command_num = match command_str_9.parse::<u8>(){
-                        Ok(_)=> command_str_9.parse::<u8>().unwrap(),
-                        Err(_)=> 1, 
-                    };
-                }
-
-                println!("commandnum:{}", command_num);
-                hiyoko_slot(&ctx,&msg,command_num).await;
-            }
+        let channel_name = get_channel_name(&ctx,&msg).await;
+        println!("channelIs:{}", channel_name);
+        if is_target_channel(channel_name).await {
+            let (command_type,command_param) = get_command_type(&msg).await;
+            println!("commandid:{}",command_param);
+            match (command_type,command_param) {
+                (CommandTypeId::HiyokoSlot,_) => hiyoko_slot(&ctx,&msg,command_param).await,
+                (CommandTypeId::UnknownCommand,_) => println!("This is not target command"),
+            };
         }
-        //暫定対応//
     }
 
     async fn ready(&self, _: Context, ready: Ready) {
         println!("{} is connected!", ready.user.name);
     }
+}
+
+async fn get_command_type(msg: &Message) -> (CommandTypeId,u8){
+    let command_str = &msg.content;
+    let mut command_param = 0;
+    let command_str_0to7 = command_str.chars().skip(0).take(8).collect::<String>();
+    let command_str_8 = command_str.chars().skip(8).take(1).collect::<String>();
+    let command_str_9 = command_str.chars().skip(9).take(1).collect::<String>();
+    //println!("{}, {}, {}", command_str_0to7,command_str_8,command_str_9);
+    if command_str_0to7 == "!ひよこスロット" {
+        command_param = 1;
+        if command_str_8 == "*"{
+            command_param = match command_str_9.parse::<u8>(){
+                Ok(_) => command_str_9.parse::<u8>().unwrap(),
+                Err(_) => 1, 
+            };
+        }
+        return (CommandTypeId::HiyokoSlot,command_param);
+    }
+    return (CommandTypeId::UnknownCommand,0);
+}
+
+async fn get_channel_name(ctx: &Context, msg: &Message) -> String {
+    let channel_name = match msg.channel_id.to_channel(&ctx).await{
+        Ok(channel) =>channel,
+        Err(why) =>{
+            println!("Error:{:?}",why);
+            return "".to_string();
+        },
+    };
+    return channel_name.to_string();
+}
+
+async fn is_target_channel(channel_name: String) -> bool{
+    if channel_name != "<#812364405840543764>" {
+        println!("This is not target channel:{}",channel_name);
+        return false;
+    }
+    return true;
 }
 
 async fn gen_slot_str() -> String {
@@ -62,25 +93,16 @@ async fn gen_slot_str() -> String {
     return all_pictures;
 }
 
-async fn hiyoko_slot(ctx: &Context, msg: &Message,command_num: u8){
+async fn hiyoko_slot(ctx: &Context, msg: &Message,command_param: u8){
     println!("Shard {}", ctx.shard_id);
-    let channel = match msg.channel_id.to_channel(&ctx).await {
-        Ok(channel) => channel,
-        Err(why) => {
-            println!("Error getting channel: {:?}", why);
-            return;
-        },
-    };
 
     let mut result = "".to_string();
-    for n in 0..command_num{
+    for _n in 0..command_param{
         let all_pictures = gen_slot_str().await;
         result = result+&all_pictures;
     }
     
     let response = MessageBuilder::new()
-    //.mention(&msg.author)
-    //.push(" ")
     .push(result)
     .build();
     if let Err(why) = msg.channel_id.say(&ctx.http, &response).await {
