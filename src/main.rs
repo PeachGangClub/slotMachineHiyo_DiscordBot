@@ -54,6 +54,15 @@ async fn get_command_type(msg: &Message) -> (CommandTypeId,u8){
     return (CommandTypeId::UnknownCommand,0);
 }
 
+async fn post_message(ctx: &Context, msg: &Message, message_str: String) {
+    let response = MessageBuilder::new()
+    .push(message_str)
+    .build();
+    if let Err(why) = msg.channel_id.say(&ctx.http, &response).await {
+        println!("Error sending message: {:?}", why);
+    }
+}
+
 async fn get_channel_name(ctx: &Context, msg: &Message) -> String {
     let channel_name = match msg.channel_id.to_channel(&ctx).await{
         Ok(channel) =>channel,
@@ -88,7 +97,6 @@ async fn gen_slot_str() -> String {
             _=> *a_picture = "error"
         }
     }
-
     let all_pictures = pictures[0].to_string()+pictures[1]+pictures[2]+"\n";
     return all_pictures;
 }
@@ -101,14 +109,7 @@ async fn hiyoko_slot(ctx: &Context, msg: &Message,command_param: u8){
         let all_pictures = gen_slot_str().await;
         result = result+&all_pictures;
     }
-    
-    let response = MessageBuilder::new()
-    .push(result)
-    .build();
-    if let Err(why) = msg.channel_id.say(&ctx.http, &response).await {
-        println!("Error sending message: {:?}", why);
-    }
-   
+    post_message(&ctx,&msg,result).await;
 }
 
 #[tokio::main]
