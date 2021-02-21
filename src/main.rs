@@ -1,5 +1,6 @@
 use std::env;
 use rand::Rng;
+//use List::{Cons, Nil};
 
 use serenity::{
     async_trait,
@@ -34,7 +35,7 @@ impl EventHandler for Handler {
     }
 }
 
-async fn get_command_type(msg: &Message) -> (CommandTypeId,u8){
+async fn get_command_type(msg: &Message) -> (CommandTypeId,u8) {
     let command_str = &msg.content;
     let mut command_param = 0;
     let command_str_0to7 = command_str.chars().skip(0).take(8).collect::<String>();
@@ -74,7 +75,7 @@ async fn get_channel_name(ctx: &Context, msg: &Message) -> String {
     return channel_name.to_string();
 }
 
-async fn is_target_channel(channel_name: String) -> bool{
+async fn is_target_channel(channel_name: String) -> bool {
     if channel_name != "<#812364405840543764>" {
         println!("This is not target channel:{}",channel_name);
         return false;
@@ -82,34 +83,52 @@ async fn is_target_channel(channel_name: String) -> bool{
     return true;
 }
 
-async fn gen_slot_str() -> String {
-    let momo = "<:momo:747707481282838588>";
-    let momogang = "<:momogang:747708446878728233>";
-    let picture_num = 2;
-    let slot_num = 3;
+//★未完成
+async fn gen_slot_str(row:u8, col:u8) -> String {
+    let emoji_list= get_emoji_list().await;
 
-    let mut pictures = ["","",""];
-    for a_picture in pictures.iter_mut() {
-        let rand_num :i16 = rand::thread_rng().gen_range(0, picture_num);
-        match rand_num{
-            0=> *a_picture = momo,
-            1=> *a_picture = momogang,
-            _=> *a_picture = "error"
+    let mut pictures_list = Vec::new();
+    for n in 0..col*row{
+
+        //println!("emojilist len: {}", emoji_list.len());
+        let emoji_len = emoji_list.len() as u8;
+        let rand_num :i16 = rand::thread_rng().gen_range(0, emoji_len).into();
+        //let rand_num :i16 = rand::thread_rng().gen_range(0, 2);
+        //pictures_list.push(emoji_list[rand_num].to_string());
+        let rand_num_u8:u8 = rand_num as u8;
+        println!("rand: {}", rand_num_u8);
+        pictures_list.push(String::from(emoji_list[rand_num].to_string()));
+        if (n%row==0) & (n!=0) {
+            pictures_list.push("\n".to_string())
         }
     }
-    let all_pictures = pictures[0].to_string()+pictures[1]+pictures[2]+"\n";
-    return all_pictures;
+    let pictures_str = str_connection(pictures_list).await;
+    return pictures_str;
+   
+}
+
+ //★未完成
+async fn str_connection(str_list: Vec<String>) -> String {
+    let mut connected_str = "test".to_string();
+    for n in 0..str_list.len(){
+        println!("str1: {}", str_list[n]);
+        //connected_str = connected_str + srt_list[n];
+    }
+    return connected_str;
 }
 
 async fn hiyoko_slot(ctx: &Context, msg: &Message,command_param: u8){
-    println!("Shard {}", ctx.shard_id);
-
-    let mut result = "".to_string();
-    for _n in 0..command_param{
-        let all_pictures = gen_slot_str().await;
-        result = result+&all_pictures;
-    }
+    //println!("Shard {}", ctx.shard_id);
+    let result = gen_slot_str(3,command_param).await;
     post_message(&ctx,&msg,result).await;
+}
+
+//★OK?
+async fn get_emoji_list() -> Vec<String> {
+    let mut emoji_list = Vec::new();
+    emoji_list.push(String::from("<:momo:747707481282838588>"));
+    emoji_list.push(String::from("<:momogang:747708446878728233>"));
+    return emoji_list;
 }
 
 #[tokio::main]
