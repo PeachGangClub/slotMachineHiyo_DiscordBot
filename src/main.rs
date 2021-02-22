@@ -11,7 +11,7 @@ use serenity::{
 struct Handler;
 enum CommandTypeId{
     UnknownCommand,
-    HiyokoSlot,
+    HiyokoSlot(u8),
 }
 
 #[async_trait]
@@ -20,11 +20,11 @@ impl EventHandler for Handler {
         let channel_name = get_channel_name(&ctx,&msg).await;
         println!("channelIs:{}", channel_name);
         if is_target_channel(channel_name).await {
-            let (command_type,command_param) = get_command_type(&msg).await;
-            println!("commandid:{}",command_param);
-            match (command_type,command_param) {
-                (CommandTypeId::HiyokoSlot,_) => hiyoko_slot(&ctx,&msg,command_param).await,
-                (CommandTypeId::UnknownCommand,_) => println!("This is not target command"),
+            let command_type = get_command_type(&msg).await;
+            //println!("commandid:{}",command_param);
+            match command_type {
+                CommandTypeId::HiyokoSlot(n) => hiyoko_slot(&ctx,&msg,n).await,
+                CommandTypeId::UnknownCommand => println!("This is not target command"),
             };
         }
     }
@@ -34,7 +34,7 @@ impl EventHandler for Handler {
     }
 }
 
-async fn get_command_type(msg: &Message) -> (CommandTypeId,u8){
+async fn get_command_type(msg: &Message) -> CommandTypeId {
     let command_str = &msg.content;
     let mut command_param = 0;
     let command_str_0to7 = command_str.chars().skip(0).take(8).collect::<String>();
@@ -49,9 +49,9 @@ async fn get_command_type(msg: &Message) -> (CommandTypeId,u8){
                 Err(_) => 1, 
             };
         }
-        return (CommandTypeId::HiyokoSlot,command_param);
+        return CommandTypeId::HiyokoSlot(command_param);
     }
-    return (CommandTypeId::UnknownCommand,0);
+    return CommandTypeId::UnknownCommand;
 }
 
 async fn post_message(ctx: &Context, msg: &Message, message_str: String) {
