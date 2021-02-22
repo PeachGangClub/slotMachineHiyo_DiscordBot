@@ -45,7 +45,7 @@ async fn get_command_type(msg: &Message) -> (CommandTypeId,u8){
         command_param = 1;
         if command_str_8 == "*"{
             command_param = match command_str_9.parse::<u8>(){
-                Ok(_) => command_str_9.parse::<u8>().unwrap(),
+                Ok(num) => num,
                 Err(_) => 1, 
             };
         }
