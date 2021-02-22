@@ -13,6 +13,7 @@ enum CommandTypeId{
     UnknownCommand,
     HiyokoSlot(u8),
 }
+#[macro_use] extern crate scan_fmt;
 
 #[async_trait]
 impl EventHandler for Handler {
@@ -36,22 +37,18 @@ impl EventHandler for Handler {
 
 async fn get_command_type(msg: &Message) -> CommandTypeId {
     let command_str = &msg.content;
-    let mut command_param = 0;
-    let command_str_0to7 = command_str.chars().skip(0).take(8).collect::<String>();
-    let command_str_8 = command_str.chars().skip(8).take(1).collect::<String>();
-    let command_str_9 = command_str.chars().skip(9).take(1).collect::<String>();
-    //println!("{}, {}, {}", command_str_0to7,command_str_8,command_str_9);
-    if command_str_0to7 == "!ひよこスロット" {
-        command_param = 1;
-        if command_str_8 == "*"{
-            command_param = match command_str_9.parse::<u8>(){
-                Ok(_) => command_str_9.parse::<u8>().unwrap(),
-                Err(_) => 1, 
-            };
+    
+    if let Ok(n) = scan_fmt!(command_str, "!ひよこスロット*{d}", u8) {
+        if n >= 10 {
+            return CommandTypeId::HiyokoSlot(9);
+        } else {
+            return CommandTypeId::HiyokoSlot(n);
         }
-        return CommandTypeId::HiyokoSlot(command_param);
+    } else if command_str.starts_with("!ひよこスロット") {
+        return CommandTypeId::HiyokoSlot(1);
+    } else {
+        return CommandTypeId::UnknownCommand;
     }
-    return CommandTypeId::UnknownCommand;
 }
 
 async fn post_message(ctx: &Context, msg: &Message, message_str: String) {
