@@ -82,16 +82,25 @@ async fn is_target_channel(channel_name: String) -> bool{
 async fn gen_slot_str() -> String {
     let momo = "<:momo:747707481282838588>";
     let momogang = "<:momogang:747708446878728233>";
-    let picture_num = 2;
+    //暫定ひよピス実装
+    let hiyopisu = "<:peace:786899830453567498>";
+    //暫定ひよピス実装
+    let picture_num = 1024;
     let slot_num = 3;
 
     let mut pictures = ["","",""];
     for a_picture in pictures.iter_mut() {
+        //暫定ひよピス実装
         let rand_num :i16 = rand::thread_rng().gen_range(0, picture_num);
-        match rand_num{
+        //暫定ひよピス実装
+        match rand_num%2{
             0=> *a_picture = momo,
             1=> *a_picture = momogang,
             _=> *a_picture = "error"
+        }
+        //暫定ひよピス実装
+        if rand_num == 0 {
+            *a_picture = hiyopisu;
         }
     }
     let all_pictures = pictures[0].to_string()+pictures[1]+pictures[2]+"\n";
