@@ -1,6 +1,5 @@
 use std::env;
 use rand::Rng;
-//use List::{Cons, Nil};
 
 use serenity::{
     async_trait,
@@ -12,8 +11,9 @@ use serenity::{
 struct Handler;
 enum CommandTypeId{
     UnknownCommand,
-    HiyokoSlot,
+    HiyokoSlot(u8),
 }
+#[macro_use] extern crate scan_fmt;
 
 #[async_trait]
 impl EventHandler for Handler {
@@ -21,11 +21,11 @@ impl EventHandler for Handler {
         let channel_name = get_channel_name(&ctx,&msg).await;
         println!("channelIs:{}", channel_name);
         if is_target_channel(channel_name).await {
-            let (command_type,command_param) = get_command_type(&msg).await;
-            println!("commandid:{}",command_param);
-            match (command_type,command_param) {
-                (CommandTypeId::HiyokoSlot,_) => hiyoko_slot(&ctx,&msg,command_param).await,
-                (CommandTypeId::UnknownCommand,_) => println!("This is not target command"),
+            let command_type = get_command_type(&msg).await;
+            //println!("commandid:{}",slot_column);
+            match command_type {
+                CommandTypeId::HiyokoSlot(n) => hiyoko_slot(&ctx,&msg,n).await,
+                CommandTypeId::UnknownCommand => println!("This is not target command"),
             };
         }
     }
@@ -35,24 +35,20 @@ impl EventHandler for Handler {
     }
 }
 
-async fn get_command_type(msg: &Message) -> (CommandTypeId,u8) {
+async fn get_command_type(msg: &Message) -> CommandTypeId {
     let command_str = &msg.content;
-    let mut command_param = 0;
-    let command_str_0to7 = command_str.chars().skip(0).take(8).collect::<String>();
-    let command_str_8 = command_str.chars().skip(8).take(1).collect::<String>();
-    let command_str_9 = command_str.chars().skip(9).take(1).collect::<String>();
-    //println!("{}, {}, {}", command_str_0to7,command_str_8,command_str_9);
-    if command_str_0to7 == "!ひよこスロット" {
-        command_param = 1;
-        if command_str_8 == "*"{
-            command_param = match command_str_9.parse::<u8>(){
-                Ok(_) => command_str_9.parse::<u8>().unwrap(),
-                Err(_) => 1, 
-            };
+    
+    if let Ok(n) = scan_fmt!(command_str, "!ひよこスロット*{d}", u8) {
+        if n >= 10 {
+            return CommandTypeId::HiyokoSlot(9);
+        } else {
+            return CommandTypeId::HiyokoSlot(n);
         }
-        return (CommandTypeId::HiyokoSlot,command_param);
+    } else if command_str.starts_with("!ひよこスロット") {
+        return CommandTypeId::HiyokoSlot(1);
+    } else {
+        return CommandTypeId::UnknownCommand;
     }
-    return (CommandTypeId::UnknownCommand,0);
 }
 
 async fn post_message(ctx: &Context, msg: &Message, message_str: String) {
@@ -75,7 +71,7 @@ async fn get_channel_name(ctx: &Context, msg: &Message) -> String {
     return channel_name.to_string();
 }
 
-async fn is_target_channel(channel_name: String) -> bool {
+async fn is_target_channel(channel_name: String) -> bool{
     if channel_name != "<#812364405840543764>" {
         println!("This is not target channel:{}",channel_name);
         return false;
@@ -83,52 +79,33 @@ async fn is_target_channel(channel_name: String) -> bool {
     return true;
 }
 
-//★未完成
-async fn gen_slot_str(row:u8, col:u8) -> String {
-    let emoji_list= get_emoji_list().await;
+async fn gen_slot_string(slot_row: u8, slot_column: u8) -> String {
+    let momo = "<:momo:747707481282838588>";
+    let momogang = "<:momogang:747708446878728233>";
+    let rand_num = 2;
 
-    let mut pictures_list = Vec::new();
-    for n in 0..col*row{
-
-        //println!("emojilist len: {}", emoji_list.len());
-        let emoji_len = emoji_list.len() as u8;
-        let rand_num :i16 = rand::thread_rng().gen_range(0, emoji_len).into();
-        //let rand_num :i16 = rand::thread_rng().gen_range(0, 2);
-        //pictures_list.push(emoji_list[rand_num].to_string());
-        let rand_num_u8:u8 = rand_num as u8;
-        println!("rand: {}", rand_num_u8);
-        pictures_list.push(String::from(emoji_list[rand_num].to_string()));
-        if (n%row==0) & (n!=0) {
-            pictures_list.push("\n".to_string())
+    let mut result_slot_string = String::new();
+    for number in 0..slot_row*slot_column {
+        if number%slot_row == 0{//最初も改行入るけど表示されなさそうだしいいかな
+            result_slot_string.push_str("\n");
         }
+        let rand_num :i16 = rand::thread_rng().gen_range(0, rand_num);
+        match rand_num{
+            0=> result_slot_string.push_str(momo),
+            1=> result_slot_string.push_str(momogang),
+            _=> result_slot_string.push_str("error")
+        }
+
     }
-    let pictures_str = str_connection(pictures_list).await;
-    return pictures_str;
-   
+    return result_slot_string;
 }
 
- //★未完成
-async fn str_connection(str_list: Vec<String>) -> String {
-    let mut connected_str = "test".to_string();
-    for n in 0..str_list.len(){
-        println!("str1: {}", str_list[n]);
-        //connected_str = connected_str + srt_list[n];
-    }
-    return connected_str;
-}
+async fn hiyoko_slot(ctx: &Context, msg: &Message,slot_column: u8){
+    println!("Shard {}", ctx.shard_id);
+    let slot_row = 3;
 
-async fn hiyoko_slot(ctx: &Context, msg: &Message,command_param: u8){
-    //println!("Shard {}", ctx.shard_id);
-    let result = gen_slot_str(3,command_param).await;
+    let result = gen_slot_string(slot_row, slot_column).await;
     post_message(&ctx,&msg,result).await;
-}
-
-//★OK?
-async fn get_emoji_list() -> Vec<String> {
-    let mut emoji_list = Vec::new();
-    emoji_list.push(String::from("<:momo:747707481282838588>"));
-    emoji_list.push(String::from("<:momogang:747708446878728233>"));
-    return emoji_list;
 }
 
 #[tokio::main]
