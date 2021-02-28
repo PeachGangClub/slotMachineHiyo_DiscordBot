@@ -22,7 +22,7 @@ impl EventHandler for Handler {
         println!("channelIs:{}", channel_name);
         if is_target_channel(channel_name).await {
             let command_type = get_command_type(&msg).await;
-            //println!("commandid:{}",command_param);
+            //println!("commandid:{}",slot_column);
             match command_type {
                 CommandTypeId::HiyokoSlot(n) => hiyoko_slot(&ctx,&msg,n).await,
                 CommandTypeId::UnknownCommand => println!("This is not target command"),
@@ -39,7 +39,7 @@ async fn get_command_type(msg: &Message) -> CommandTypeId {
     let command_str = &msg.content;
     
     if let Ok(n) = scan_fmt!(command_str, "!ひよこスロット*{d}", u8) {
-        if n >= 10 {
+        if n >= 9 {
             return CommandTypeId::HiyokoSlot(9);
         } else {
             return CommandTypeId::HiyokoSlot(n);
@@ -79,42 +79,29 @@ async fn is_target_channel(channel_name: String) -> bool{
     return true;
 }
 
-async fn gen_slot_str() -> String {
-    let momo = "<:momo:747707481282838588>";
-    let momogang = "<:momogang:747708446878728233>";
-    //暫定ひよピス実装
-    let hiyopisu = "<:peace:786899830453567498>";
-    //暫定ひよピス実装
-    let picture_num = 1024;
-    let slot_num = 3;
+async fn gen_slot_string(slot_row: u8, slot_column: u8) -> String {
+    let emoji_str_list= vec!["<:momo:747707481282838588>","<:momogang:747708446878728233>"];
+    let emoji_length = emoji_str_list.len();
 
-    let mut pictures = ["","",""];
-    for a_picture in pictures.iter_mut() {
-        //暫定ひよピス実装
-        let rand_num :i16 = rand::thread_rng().gen_range(0, picture_num);
-        //暫定ひよピス実装
-        match rand_num%2{
-            0=> *a_picture = momo,
-            1=> *a_picture = momogang,
-            _=> *a_picture = "error"
+    let mut result_slot_string = String::new();
+    for number in 0..slot_row*slot_column {
+        //最初も改行入るけど表示されなさそうだしいいかな
+        if number%slot_row == 0{
+            result_slot_string.push_str("\n");
         }
-        //暫定ひよピス実装
-        if rand_num == 0 {
-            *a_picture = hiyopisu;
+        let rand_num = rand::thread_rng().gen_range(0, emoji_length);
+        match rand_num{
+            n=> result_slot_string.push_str(&emoji_str_list[n]),
         }
     }
-    let all_pictures = pictures[0].to_string()+pictures[1]+pictures[2]+"\n";
-    return all_pictures;
+    return result_slot_string;
 }
 
-async fn hiyoko_slot(ctx: &Context, msg: &Message,command_param: u8){
+async fn hiyoko_slot(ctx: &Context, msg: &Message,slot_column: u8){
     println!("Shard {}", ctx.shard_id);
+    let slot_row = 3;
 
-    let mut result = "".to_string();
-    for _n in 0..command_param{
-        let all_pictures = gen_slot_str().await;
-        result = result+&all_pictures;
-    }
+    let result = gen_slot_string(slot_row, slot_column).await;
     post_message(&ctx,&msg,result).await;
 }
 
