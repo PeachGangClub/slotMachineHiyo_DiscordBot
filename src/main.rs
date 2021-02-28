@@ -39,7 +39,7 @@ async fn get_command_type(msg: &Message) -> CommandTypeId {
     let command_str = &msg.content;
     
     if let Ok(n) = scan_fmt!(command_str, "!ひよこスロット*{d}", u8) {
-        if n >= 10 {
+        if n >= 9 {
             return CommandTypeId::HiyokoSlot(9);
         } else {
             return CommandTypeId::HiyokoSlot(n);
@@ -80,22 +80,19 @@ async fn is_target_channel(channel_name: String) -> bool{
 }
 
 async fn gen_slot_string(slot_row: u8, slot_column: u8) -> String {
-    let momo = "<:momo:747707481282838588>";
-    let momogang = "<:momogang:747708446878728233>";
-    let rand_num = 2;
+    let emoji_str_list= vec!["<:momo:747707481282838588>","<:momogang:747708446878728233>"];
+    let emoji_length = emoji_str_list.len();
 
     let mut result_slot_string = String::new();
     for number in 0..slot_row*slot_column {
-        if number%slot_row == 0{//最初も改行入るけど表示されなさそうだしいいかな
+        //最初も改行入るけど表示されなさそうだしいいかな
+        if number%slot_row == 0{
             result_slot_string.push_str("\n");
         }
-        let rand_num :i16 = rand::thread_rng().gen_range(0, rand_num);
+        let rand_num = rand::thread_rng().gen_range(0, emoji_length);
         match rand_num{
-            0=> result_slot_string.push_str(momo),
-            1=> result_slot_string.push_str(momogang),
-            _=> result_slot_string.push_str("error")
+            n=> result_slot_string.push_str(&emoji_str_list[n]),
         }
-
     }
     return result_slot_string;
 }
