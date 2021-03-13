@@ -31,7 +31,7 @@ pub mod channel{
         return channel_name.to_string();
     }
     
-    pub async fn is_target_channel(channel_name: String) -> bool {
+    pub fn is_target_channel(channel_name: String) -> bool {
         let target_channel = env::var("TARGET_CHANNEL")
             .expect("Expected a target channnel");
         if channel_name != target_channel {
@@ -48,7 +48,7 @@ pub mod command{
         UnknownCommand,
         HiyokoSlot(u8),
     }
-    pub async fn get_command_type(msg: &Message) -> CommandTypeId {
+    pub fn get_command_type(msg: &Message) -> CommandTypeId {
         let command_str = &msg.content;
         
         if let Ok(n) = scan_fmt!(command_str, "!ひよこスロット*{d}", u8) {
