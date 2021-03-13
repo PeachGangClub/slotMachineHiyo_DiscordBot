@@ -19,8 +19,8 @@ impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
         let channel_name = channel::get_channel_name(&ctx,&msg).await;
         println!("channelIs:{}", channel_name);
-        if channel::is_target_channel(channel_name).await {
-            let command_type = command::get_command_type(&msg).await;
+        if channel::is_target_channel(channel_name){
+            let command_type = command::get_command_type(&msg);
             //println!("commandid:{}",slot_column);
             match command_type {
                 command::CommandTypeId::HiyokoSlot(n) => hiyokoslot::hiyoko_slot(&ctx,&msg,n).await,
