@@ -1,108 +1,36 @@
-use std::env;
-use rand::Rng;
+mod common;
+mod hiyokoslot;
 
+use std::env;
 use serenity::{
     async_trait,
     model::{channel::Message, gateway::Ready},
     prelude::*,
-    utils::MessageBuilder,
 };
 
+use crate::common::{command,channel};
+
 struct Handler;
-enum CommandTypeId{
-    UnknownCommand,
-    HiyokoSlot(u8),
-}
+
 #[macro_use] extern crate scan_fmt;
 
 #[async_trait]
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
-        let channel_name = get_channel_name(&ctx,&msg).await;
+        let channel_name = channel::get_channel_name(&ctx,&msg).await;
         println!("channelIs:{}", channel_name);
-        if is_target_channel(channel_name).await {
-            let command_type = get_command_type(&msg).await;
+        if channel::is_target_channel(channel_name).await {
+            let command_type = command::get_command_type(&msg).await;
             //println!("commandid:{}",slot_column);
             match command_type {
-                CommandTypeId::HiyokoSlot(n) => hiyoko_slot(&ctx,&msg,n).await,
-                CommandTypeId::UnknownCommand => println!("This is not target command"),
+                command::CommandTypeId::HiyokoSlot(n) => hiyokoslot::hiyoko_slot(&ctx,&msg,n).await,
+                command::CommandTypeId::UnknownCommand => println!("This is not target command"),
             };
         }
     }
-
     async fn ready(&self, _: Context, ready: Ready) {
         println!("{} is connected!", ready.user.name);
     }
-}
-
-async fn get_command_type(msg: &Message) -> CommandTypeId {
-    let command_str = &msg.content;
-    
-    if let Ok(n) = scan_fmt!(command_str, "!ひよこスロット*{d}", u8) {
-        if n >= 9 {
-            return CommandTypeId::HiyokoSlot(9);
-        } else {
-            return CommandTypeId::HiyokoSlot(n);
-        }
-    } else if command_str.starts_with("!ひよこスロット") {
-        return CommandTypeId::HiyokoSlot(1);
-    } else {
-        return CommandTypeId::UnknownCommand;
-    }
-}
-
-async fn post_message(ctx: &Context, msg: &Message, message_str: String) {
-    let response = MessageBuilder::new()
-    .push(message_str)
-    .build();
-    if let Err(why) = msg.channel_id.say(&ctx.http, &response).await {
-        println!("Error sending message: {:?}", why);
-    }
-}
-
-async fn get_channel_name(ctx: &Context, msg: &Message) -> String {
-    let channel_name = match msg.channel_id.to_channel(&ctx).await{
-        Ok(channel) =>channel,
-        Err(why) =>{
-            println!("Error:{:?}",why);
-            return "".to_string();
-        },
-    };
-    return channel_name.to_string();
-}
-
-async fn is_target_channel(channel_name: String) -> bool{
-    if channel_name != "<#812364405840543764>" {
-        println!("This is not target channel:{}",channel_name);
-        return false;
-    }
-    return true;
-}
-
-async fn gen_slot_string(slot_row: u8, slot_column: u8) -> String {
-    let emoji_str_list= vec!["<:momo:747707481282838588>","<:momogang:747708446878728233>"];
-    let emoji_length = emoji_str_list.len();
-
-    let mut result_slot_string = String::new();
-    for number in 0..slot_row*slot_column {
-        //最初も改行入るけど表示されなさそうだしいいかな
-        if number%slot_row == 0{
-            result_slot_string.push_str("\n");
-        }
-        let rand_num = rand::thread_rng().gen_range(0, emoji_length);
-        match rand_num{
-            n=> result_slot_string.push_str(&emoji_str_list[n]),
-        }
-    }
-    return result_slot_string;
-}
-
-async fn hiyoko_slot(ctx: &Context, msg: &Message,slot_column: u8){
-    println!("Shard {}", ctx.shard_id);
-    let slot_row = 3;
-
-    let result = gen_slot_string(slot_row, slot_column).await;
-    post_message(&ctx,&msg,result).await;
 }
 
 #[tokio::main]
