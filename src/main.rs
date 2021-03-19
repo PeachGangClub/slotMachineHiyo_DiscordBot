@@ -7,8 +7,8 @@ use serenity::{
     model::{channel::Message, gateway::Ready},
     prelude::*,
 };
-
 use crate::common::{command,channel};
+use dotenv::dotenv;
 
 struct Handler;
 
@@ -37,6 +37,7 @@ impl EventHandler for Handler {
 #[tokio::main]
 async fn main() {
     // Configure the client with your Discord bot token in the environment.
+    dotenv().ok();
     let token = env::var("DISCORD_TOKEN")
         .expect("Expected a token in the environment");
     let mut client = Client::builder(&token)

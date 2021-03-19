@@ -1,2 +1,6 @@
 # slotMachineHiyo_DiscordBot
-DiscordBot SlotMachine
+.envファイルを作成してください
+``
+DISCORD_TOKEN="xxxxxxxxxx"
+TARGET_CHANNEL="xxxxxxxxxx"
+``
