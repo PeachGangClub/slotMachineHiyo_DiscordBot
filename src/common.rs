@@ -47,6 +47,7 @@ pub mod command{
     pub enum CommandTypeId{
         UnknownCommand,
         HiyokoSlot(u8),
+        HiyokoBingo,
     }
     pub fn get_command_type(msg: &Message) -> CommandTypeId {
         let command_str = &msg.content;
@@ -59,6 +60,9 @@ pub mod command{
             }
         } else if command_str.starts_with("!ひよこスロット") {
             return CommandTypeId::HiyokoSlot(1);
+        }
+        else if command_str.starts_with("!ひよこビンゴ") {
+            return CommandTypeId::HiyokoBingo;
         } else {
             return CommandTypeId::UnknownCommand;
         }

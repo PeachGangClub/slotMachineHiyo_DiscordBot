@@ -24,7 +24,8 @@ impl EventHandler for Handler {
             //println!("commandid:{}",slot_column);
             match command_type {
                 command::CommandTypeId::HiyokoSlot(n) => hiyokoslot::hiyoko_slot(&ctx,&msg,n).await,
-                command::CommandTypeId::UnknownCommand => println!("This is not target command"),
+                command::CommandTypeId::HiyokoBingo => hiyokoslot::hiyoko_bingo(&ctx,&msg).await,
+                command::CommandTypeId::UnknownCommand => println!("This is not target command")
             };
         }
     }
