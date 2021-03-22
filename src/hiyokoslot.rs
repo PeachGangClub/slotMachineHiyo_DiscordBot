@@ -43,7 +43,7 @@ pub async fn hiyoko_bingo(ctx: &Context, msg: &Message){
     println!("Shard {}", ctx.shard_id);
     let slot_row = 5;
     let slot_column = 5;
-    let emoji_str_list= vec!["<:momo:747707481282838588>","<:momogang:747708446878728233>","<:peace:786899830453567498>"];
+    let emoji_str_list= vec!["<:bingo_n:823544230546374676>","<:bingo_atari:823544270271021088>","<:bingo_free:823542644062814238>"];
 
     let mut rand_vec = gen_rand_vec(slot_row*slot_column,emoji_str_list.len()-1);
     rand_vec[12] = 2;
