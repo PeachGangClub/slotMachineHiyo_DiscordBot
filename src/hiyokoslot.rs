@@ -95,7 +95,7 @@ fn bingo_check(rand_vec: &mut Vec<u8>, row: u8, column:u8) -> &mut Vec<u8>{
         println!("naname bingo");
         //あとで何とかする
         for n in 0..row{
-            rand_vec[(row*n-n) as usize] = 2;
+            rand_vec[(row*n-n+4) as usize] = 2;
         }
     }
 
