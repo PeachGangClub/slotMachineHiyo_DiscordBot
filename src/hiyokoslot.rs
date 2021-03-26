@@ -89,7 +89,7 @@ pub mod bingo{
         let emoji_str_list = vec![
             "<:bingo_close:823544230546374676>",
             "<:bingo_open:823544270271021088>",
-            "<:bingo_atari:823911268729356328>",
+            "<:bingo_atari_6:824118494663540758>",
             "<:bingo_free:823542644062814238>",
         ];
     
@@ -170,8 +170,6 @@ pub mod bingo{
                 rand_vec[(row * n - n + 4) as usize] = 2;
             }
         }
-    
-        rand_vec[12] = 3;
         return rand_vec;
     }
 }
