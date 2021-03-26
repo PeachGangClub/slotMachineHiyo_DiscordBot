@@ -5,7 +5,7 @@ use serenity::{
     prelude::*,
 };
 
-use crate::common::post;
+use crate::post;
 
 fn gen_rand_vec(gen_length: u8, emoji_length:usize) -> Vec<u8> {
     let mut slot_rand_result: Vec<u8> = Vec::new();

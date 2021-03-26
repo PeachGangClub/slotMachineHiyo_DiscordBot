@@ -50,3 +50,19 @@ async fn main() {
         println!("Client error: {:?}", why);
     }
 }
+
+pub mod post{
+    use serenity::{
+        model::channel::Message,
+        prelude::*,
+        utils::MessageBuilder,
+    };
+    pub async fn post_message(ctx: &Context, msg: &Message, message_str: String) {
+        let response = MessageBuilder::new()
+        .push(message_str)
+        .build();
+        if let Err(why) = msg.channel_id.say(&ctx.http, &response).await {
+            println!("Error sending message: {:?}", why);
+        }
+    }
+}
