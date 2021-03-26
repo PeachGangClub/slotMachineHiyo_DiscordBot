@@ -8,6 +8,7 @@ edition = "2018"
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 rand="0.6.5"
 scan_fmt = "0.2.6"
+dotenv = "0.15.0"
 
 [dependencies.serenity]
 default-features = false
