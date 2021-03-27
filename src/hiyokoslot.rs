@@ -86,7 +86,7 @@ pub mod bingo{
         let slot_column = 5;
         let emoji_str_list = vec![
             "<:bingo_close:823544230546374676>",
-            "<:bingo_open:823544270271021088>",
+            "<:bingo_open:825355221156495361>",
             "<:bingo_atari:825349102576336906>",
             "<:bingo_free:825352494141538304>",
         ];
