@@ -87,8 +87,8 @@ pub mod bingo{
         let emoji_str_list = vec![
             "<:bingo_close:823544230546374676>",
             "<:bingo_open:823544270271021088>",
-            "<:bingo_atari_6:824118494663540758>",
-            "<:bingo_free:823542644062814238>",
+            "<:bingo_atari:825349102576336906>",
+            "<:bingo_free:825352494141538304>",
         ];
     
         let mut rand_vec = common::gen_rand_vec(slot_row * slot_column, 2);
