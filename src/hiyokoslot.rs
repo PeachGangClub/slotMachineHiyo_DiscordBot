@@ -1,5 +1,4 @@
 pub mod command {
-    use serenity::model::channel::Message;
     pub enum CommandTypeId {
         UnknownCommand,
         HiyokoSlot(u8),
@@ -7,9 +6,7 @@ pub mod command {
         HiyokoBowling,
     }
 
-    pub fn get_command_type(msg: &Message) -> CommandTypeId {
-        let command_str = &msg.content;
-
+    pub fn get_command_type(command_str: &str) -> CommandTypeId {
         if let Ok(n) = scan_fmt!(command_str, "!ひよこスロット*{d}", u8) {
             if n >= 9 {
                 return CommandTypeId::HiyokoSlot(9);
@@ -63,27 +60,19 @@ pub mod common{
 }
 
 pub mod slot{
-    use serenity::model::prelude::Message;
-    use serenity::client::Context;
-    use crate::discord::post;
     use super::common;
-    pub async fn hiyoko_slot(ctx: &Context, msg: &Message, slot_column: u8) {
-        println!("Shard {}", ctx.shard_id);
+    pub fn hiyoko_slot(slot_column: u8) -> String {
         let slot_row = 3;
         let emoji_str_list= vec!["<:momo:747707481282838588>","<:momogang:747708446878728233>"];
         let rand_vec = common::gen_rand_vec(slot_row*slot_column,emoji_str_list.len());
         let result_srting = common::gen_string(rand_vec, emoji_str_list, slot_row, slot_column);
-        post::post_message(&ctx,&msg,result_srting).await;
+        return result_srting;
     }
 }
 
 pub mod bingo{
-    use crate::discord::post;
     use super::common;
-    use serenity::model::prelude::Message;
-    use serenity::client::Context;
-    pub async fn hiyoko_bingo(ctx: &Context, msg: &Message) {
-        println!("Shard {}", ctx.shard_id);
+    pub fn hiyoko_bingo() -> String {
         let slot_row = 5;
         let slot_column = 5;
         let emoji_str_list = vec![
@@ -96,7 +85,7 @@ pub mod bingo{
         let mut rand_vec = common::gen_rand_vec(slot_row * slot_column, 2);
         let rand_vec = bingo_check(&mut rand_vec, slot_row, slot_column);
         let result_srting = common::gen_string(rand_vec.to_vec(), emoji_str_list, slot_row, slot_column);
-        post::post_message(&ctx, &msg, result_srting).await;
+        return result_srting;
     }
     
     fn bingo_check(rand_vec: &mut Vec<u8>, row: u8, column: u8) -> &mut Vec<u8> {
@@ -175,12 +164,8 @@ pub mod bingo{
 }
 
 pub mod bowling{
-    use serenity::model::prelude::Message;
-    use serenity::client::Context;
-    use crate::discord::post;
     use super::common;
-    pub async fn hiyoko_bowling(ctx: &Context, msg: &Message) {
-        println!("Shard {}", ctx.shard_id);
+    pub fn hiyoko_bowling() -> String {
         let emoji_str_list = vec![
             ":bowling:",
             ":basketball:",
@@ -202,6 +187,6 @@ pub mod bowling{
             result_string.push_str(buon_emoji_str);
         }
         result_string.push_str(emoji_str_list[rand_vec[0] as usize]);
-        post::post_message(&ctx, &msg, result_string).await;
+        return result_string;
     }    
 }

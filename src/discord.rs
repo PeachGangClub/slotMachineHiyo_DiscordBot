@@ -31,3 +31,23 @@ pub mod post {
         }
     }
 }
+
+pub mod common{
+    use super::{channel, post};
+    use crate::hiyokoslot::{command, bingo, bowling, slot};
+    use serenity::model::prelude::Message;
+    use serenity::client::Context;
+    pub async fn distribution(ctx: &Context, msg: &Message){
+        let channel_name = channel::get_channel_name(&ctx, &msg).await;
+        println!("channelIs:{}", channel_name);
+        if channel::is_target_channel(channel_name) {
+            let command_type = command::get_command_type(&msg.content);
+            match command_type {
+                command::CommandTypeId::HiyokoSlot(n) => post::post_message(&ctx, &msg, slot::hiyoko_slot(n)).await,
+                command::CommandTypeId::HiyokoBingo => post::post_message(&ctx, &msg, bingo::hiyoko_bingo()).await,
+                command::CommandTypeId::HiyokoBowling => post::post_message(&ctx, &msg, bowling::hiyoko_bowling()).await,
+                command::CommandTypeId::UnknownCommand => println!("This is not target command"),
+            };
+        }
+    }
+}
