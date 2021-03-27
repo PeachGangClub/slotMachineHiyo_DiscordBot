@@ -1,3 +1,24 @@
+pub mod common{
+    use super::{channel, post};
+    use crate::hiyokoslot::{command, bingo, bowling, slot};
+    use serenity::model::prelude::Message;
+    use serenity::client::Context;
+
+    pub async fn receptionist(ctx: &Context, msg: &Message){
+        let channel_name = channel::get_channel_name(&ctx, &msg).await;
+        println!("channelIs:{}", channel_name);
+        if channel::is_target_channel(channel_name) {
+            let command_type = command::get_command_type(&msg.content);
+            match command_type {
+                command::CommandTypeId::HiyokoSlot(n) => post::post_message(&ctx, &msg, slot::hiyoko_slot(n)).await,
+                command::CommandTypeId::HiyokoBingo => post::post_message(&ctx, &msg, bingo::hiyoko_bingo()).await,
+                command::CommandTypeId::HiyokoBowling => post::post_message(&ctx, &msg, bowling::hiyoko_bowling()).await,
+                command::CommandTypeId::UnknownCommand => println!("This is not target command"),
+            };
+        }
+    }
+}
+
 pub mod channel {
     use serenity::{model::channel::Message, prelude::*};
     use std::env;
@@ -11,7 +32,6 @@ pub mod channel {
         };
         return channel_name.to_string();
     }
-
     pub fn is_target_channel(channel_name: String) -> bool {
         let target_channel = env::var("TARGET_CHANNEL").expect("Expected a target channnel");
         if channel_name != target_channel {
@@ -28,26 +48,6 @@ pub mod post {
         let response = MessageBuilder::new().push(message_str).build();
         if let Err(why) = msg.channel_id.say(&ctx.http, &response).await {
             println!("Error sending message: {:?}", why);
-        }
-    }
-}
-
-pub mod common{
-    use super::{channel, post};
-    use crate::hiyokoslot::{command, bingo, bowling, slot};
-    use serenity::model::prelude::Message;
-    use serenity::client::Context;
-    pub async fn distribution(ctx: &Context, msg: &Message){
-        let channel_name = channel::get_channel_name(&ctx, &msg).await;
-        println!("channelIs:{}", channel_name);
-        if channel::is_target_channel(channel_name) {
-            let command_type = command::get_command_type(&msg.content);
-            match command_type {
-                command::CommandTypeId::HiyokoSlot(n) => post::post_message(&ctx, &msg, slot::hiyoko_slot(n)).await,
-                command::CommandTypeId::HiyokoBingo => post::post_message(&ctx, &msg, bingo::hiyoko_bingo()).await,
-                command::CommandTypeId::HiyokoBowling => post::post_message(&ctx, &msg, bowling::hiyoko_bowling()).await,
-                command::CommandTypeId::UnknownCommand => println!("This is not target command"),
-            };
         }
     }
 }

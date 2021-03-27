@@ -1,7 +1,6 @@
 mod discord;
 mod hiyokoslot;
 
-use crate::discord::{common};
 use dotenv::dotenv;
 use serenity::{
     async_trait,
@@ -18,7 +17,8 @@ extern crate scan_fmt;
 #[async_trait]
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
-        common::distribution(&ctx, &msg).await;
+        hiyokoslot::common::output_time("message event");
+        discord::common::receptionist(&ctx, &msg).await;
     }
     async fn ready(&self, _: Context, ready: Ready) {
         println!("{} is connected!", ready.user.name);

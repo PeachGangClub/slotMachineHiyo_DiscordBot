@@ -1,32 +1,6 @@
-pub mod command {
-    pub enum CommandTypeId {
-        UnknownCommand,
-        HiyokoSlot(u8),
-        HiyokoBingo,
-        HiyokoBowling,
-    }
-
-    pub fn get_command_type(command_str: &str) -> CommandTypeId {
-        if let Ok(n) = scan_fmt!(command_str, "!ひよこスロット*{d}", u8) {
-            if n >= 9 {
-                return CommandTypeId::HiyokoSlot(9);
-            } else {
-                return CommandTypeId::HiyokoSlot(n);
-            }
-        } else if command_str.starts_with("!ひよこスロット") {
-            return CommandTypeId::HiyokoSlot(1);
-        } else if command_str.starts_with("!ひよこビンゴ") {
-            return CommandTypeId::HiyokoBingo;
-        } else if command_str.starts_with("!ひよこボウリング") {
-            return CommandTypeId::HiyokoBowling;
-        } else {
-            return CommandTypeId::UnknownCommand;
-        }
-    }
-}
-
 pub mod common{
     use rand::Rng;
+    use chrono::prelude::{DateTime, Local};
     pub fn gen_rand_vec(gen_length: u8, emoji_length: usize) -> Vec<u8> {
         let mut slot_rand_result: Vec<u8> = Vec::new();
         for _number in 0..gen_length {
@@ -57,11 +31,45 @@ pub mod common{
         //ジェネリクスの勉強の後書き換えるとよいかも
         return vec_num.iter().all(|&x| x > 0);
     }
+    pub fn output_time(title_str: &str){
+        let local: DateTime<Local> = Local::now();
+        println!("{}:{}", local.to_string(), title_str);
+    }
 }
+
+pub mod command {
+    use super::common;
+    pub enum CommandTypeId {
+        UnknownCommand,
+        HiyokoSlot(u8),
+        HiyokoBingo,
+        HiyokoBowling,
+    }
+    pub fn get_command_type(command_str: &str) -> CommandTypeId {
+        common::output_time("get_command_type function");
+        if let Ok(n) = scan_fmt!(command_str, "!ひよこスロット*{d}", u8) {
+            if n >= 9 {
+                return CommandTypeId::HiyokoSlot(9);
+            } else {
+                return CommandTypeId::HiyokoSlot(n);
+            }
+        } else if command_str.starts_with("!ひよこスロット") {
+            return CommandTypeId::HiyokoSlot(1);
+        } else if command_str.starts_with("!ひよこビンゴ") {
+            return CommandTypeId::HiyokoBingo;
+        } else if command_str.starts_with("!ひよこボウリング") {
+            return CommandTypeId::HiyokoBowling;
+        } else {
+            return CommandTypeId::UnknownCommand;
+        }
+    }
+}
+
 
 pub mod slot{
     use super::common;
     pub fn hiyoko_slot(slot_column: u8) -> String {
+        common::output_time("hiyoko_slot function");
         let slot_row = 3;
         let emoji_str_list= vec!["<:momo:747707481282838588>","<:momogang:747708446878728233>"];
         let rand_vec = common::gen_rand_vec(slot_row*slot_column,emoji_str_list.len());
@@ -73,6 +81,7 @@ pub mod slot{
 pub mod bingo{
     use super::common;
     pub fn hiyoko_bingo() -> String {
+        common::output_time("hiyoko_bingo function");
         let slot_row = 5;
         let slot_column = 5;
         let emoji_str_list = vec![
@@ -102,7 +111,7 @@ pub mod bingo{
                 rand_vec[(row * 4 + number) as usize],
             ]);
             if is_bingo == true {
-                println!("tate bingo");
+                //println!("tate bingo");
                 //あとで何とかする
                 for n in 0..column {
                     rand_vec[(row * n + number) as usize] = 2;
@@ -121,7 +130,7 @@ pub mod bingo{
                 rand_vec[(4 + row * number) as usize],
             ]);
             if is_bingo == true {
-                println!("yoko bingo");
+                //println!("yoko bingo");
                 //あとで何とかする
                 for n in 0..row {
                     rand_vec[(n + row * number) as usize] = 2;
@@ -138,7 +147,7 @@ pub mod bingo{
             rand_vec[24],
         ]);
         if is_bingo == true {
-            println!("naname bingo");
+            //println!("naname bingo");
             //あとで何とかする rowは適切じゃないかも
             for n in 0..row {
                 rand_vec[(row * n + n) as usize] = 2;
@@ -153,7 +162,7 @@ pub mod bingo{
             rand_vec[20],
         ]);
         if is_bingo == true {
-            println!("naname bingo");
+            //println!("naname bingo");
             //あとで何とかする
             for n in 0..row {
                 rand_vec[(row * n - n + 4) as usize] = 2;
@@ -166,6 +175,7 @@ pub mod bingo{
 pub mod bowling{
     use super::common;
     pub fn hiyoko_bowling() -> String {
+        common::output_time("hiyoko_bowling function");
         let emoji_str_list = vec![
             ":bowling:",
             ":basketball:",
