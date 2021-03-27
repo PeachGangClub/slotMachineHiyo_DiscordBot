@@ -1,8 +1,6 @@
 mod discord;
 mod hiyokoslot;
 
-use crate::discord::channel;
-use crate::hiyokoslot::{command, bingo, bowling, slot};
 use dotenv::dotenv;
 use serenity::{
     async_trait,
@@ -19,17 +17,8 @@ extern crate scan_fmt;
 #[async_trait]
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
-        let channel_name = channel::get_channel_name(&ctx, &msg).await;
-        println!("channelIs:{}", channel_name);
-        if channel::is_target_channel(channel_name) {
-            let command_type = command::get_command_type(&msg);
-            match command_type {
-                command::CommandTypeId::HiyokoSlot(n) => slot::hiyoko_slot(&ctx, &msg, n).await,
-                command::CommandTypeId::HiyokoBingo => bingo::hiyoko_bingo(&ctx, &msg).await,
-                command::CommandTypeId::HiyokoBowling => bowling::hiyoko_bowling(&ctx, &msg).await,
-                command::CommandTypeId::UnknownCommand => println!("This is not target command"),
-            };
-        }
+        hiyokoslot::common::output_time("message event");
+        discord::common::receptionist(&ctx, &msg).await;
     }
     async fn ready(&self, _: Context, ready: Ready) {
         println!("{} is connected!", ready.user.name);
