@@ -1,6 +1,5 @@
 mod discord;
 mod hiyokoslot;
-mod tst;
 
 use dotenv::dotenv;
 use serenity::{

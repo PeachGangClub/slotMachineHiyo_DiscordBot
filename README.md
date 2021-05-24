@@ -1,4 +1,4 @@
-# slotMachineHiyo_DiscordBot
+# hiyoslo_discord
 .envファイルを作成してください
 ``
 DISCORD_TOKEN="xxxxxxxxxx"
