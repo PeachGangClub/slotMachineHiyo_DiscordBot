@@ -13,6 +13,7 @@ pub mod common{
                 command::CommandTypeId::HiyokoSlot(n) => post::post_message(&ctx, &msg, slot::hiyoko_slot(n)).await,
                 command::CommandTypeId::HiyokoBingo => post::post_message(&ctx, &msg, bingo::hiyoko_bingo()).await,
                 command::CommandTypeId::HiyokoBowling => post::post_message(&ctx, &msg, bowling::hiyoko_bowling()).await,
+                command::CommandTypeId::KakumeiSlot => post::post_message(&ctx, &msg, slot::kakumei_slot()).await,
                 command::CommandTypeId::UnknownCommand => println!("This is not target command"),
             };
         }
