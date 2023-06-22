@@ -8,11 +8,11 @@ pub fn hiyoko_slot(slot_column: u8) -> String {
     return result_srting;
 }
 
-pub fn kakumei_slot() -> String {
+pub fn kakumei_slot(slot_column: u8) -> String {
     common::output_time("kakumei_slot function");
     let slot_row = 3;
     let emoji_str_list= vec!["<:kizoku:1115461872251064402>","<:heimin:1115461823987187923>","<:king:1115495354373242880>"];
-    let rand_vec = common::gen_rand_vec(slot_row,emoji_str_list.len());
-    let result_srting = common::gen_string(rand_vec, emoji_str_list, slot_row, 1);
+    let rand_vec = common::gen_rand_vec(slot_row*slot_column,emoji_str_list.len());
+    let result_srting = common::gen_string(rand_vec, emoji_str_list, slot_row, slot_column);
     return result_srting;
 }

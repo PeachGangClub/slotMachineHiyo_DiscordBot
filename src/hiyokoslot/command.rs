@@ -4,7 +4,7 @@ pub enum CommandTypeId {
     HiyokoSlot(u8),
     HiyokoBingo,
     HiyokoBowling,
-    KakumeiSlot,
+    KakumeiSlot(u8),
 }
 pub fn get_command_type(command_str: &str) -> CommandTypeId {
     common::output_time("get_command_type function");
@@ -16,8 +16,14 @@ pub fn get_command_type(command_str: &str) -> CommandTypeId {
         }
     } else if command_str.starts_with("!ひよこスロット") {
         return CommandTypeId::HiyokoSlot(1);
-    }else if command_str.starts_with("!かくめいスロット") {
-        return CommandTypeId::KakumeiSlot;
+    } else if let Ok(n) = scan_fmt!(command_str, "!かくめいスロット*{d}", u8) {
+        if n >= 9 {
+            return CommandTypeId::KakumeiSlot(9);
+        } else {
+            return CommandTypeId::KakumeiSlot(n);
+        }
+    }  else if command_str.starts_with("!かくめいスロット") {
+        return CommandTypeId::KakumeiSlot(1);
     } else if command_str.starts_with("!ひよこビンゴ") {
         return CommandTypeId::HiyokoBingo;
     } else if command_str.starts_with("!ひよこボウリング") {
